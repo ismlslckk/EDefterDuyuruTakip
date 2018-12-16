@@ -64,20 +64,29 @@ namespace EDefterDuyuruTakip
             } 
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
+                olusanHatalariKaydet(ex);
                 new MailInstance().Gonder("Sayfa bulunamadı.\r\n"+ex.Message+"\r\n"+ex.StackTrace);
                 Console.Read();
             }
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.InternalServerError)
             {
+                olusanHatalariKaydet(ex);
                 new MailInstance().Gonder("Sunucuya Erişilemiyor.\r\n" + ex.Message + "\r\n" + ex.StackTrace);
                 Console.Read();
             }
             catch (Exception ex)
             {
+                olusanHatalariKaydet(ex);
                 new MailInstance().Gonder(ex.Message + "\r\n" + ex.StackTrace);
                 Console.Read();
             }
-             
+            void olusanHatalariKaydet(Exception ex)
+            {
+                string olusanTumHatalar = File.ReadAllText("olusanHatalar.txt");
+                olusanTumHatalar += "\r\n #" + ex.Message + "\n" + ex.StackTrace;
+                File.WriteAllText("olusanHatalar.txt", olusanTumHatalar+"\n");
+            }
         }
+      
     }
 }
