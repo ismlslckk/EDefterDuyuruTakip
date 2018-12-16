@@ -16,8 +16,8 @@ namespace EDefterDuyuruTakip
         SmtpClient smtp = new SmtpClient();
         public MailInstance()
         {
-            ePosta.From = new MailAddress("fampadestek@gmail.com");
-            ePosta.To.Add("ismlslck@gmail.com");
+            ePosta.From = new MailAddress("edefterduyurutakip@gmail.com");
+            ePosta.To.Add("sirketdestek@adayazilim.com");
             ePosta.Subject = "E-DEFTER DUYURULARI HAKKINDA";
             smtp.Credentials = new System.Net.NetworkCredential("", "");
             smtp.Port = 587;
