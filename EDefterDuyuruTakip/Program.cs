@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -13,15 +14,14 @@ namespace EDefterDuyuruTakip
     {
         static void Main(string[] args)
         {
-            List<Duyuru> dosyayaYazdirilacakDuyurular = new List<Duyuru>();
+            List<Duyuru> sitedenOkunanTumDuyurular = new List<Duyuru>();
             try
             {
                 Uri url = new Uri("http://www.edefter.gov.tr/duyurular.html");
                 WebClient client = new WebClient();
                 client.Encoding = System.Text.Encoding.UTF8;
                 string html = client.DownloadString(url);
-
-
+                 
                 HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
                 document.LoadHtml(html);
 
@@ -33,22 +33,51 @@ namespace EDefterDuyuruTakip
                 List<HtmlNode> tumDuyularinListesi = tumDuyurular.Where(x => x.Name == "a" || x.Name == "p").ToList();
                 for (int i = 0; i < tumDuyularinListesi.Count(); i=i+2)
                 {
-                    string tarih = tumDuyularinListesi[i].InnerText;
-                    string icerik = tumDuyularinListesi[i + 1].InnerHtml;
-                    dosyayaYazdirilacakDuyurular.Add(new Duyuru() { Tarih = tarih, Icerik = icerik });
+                    DateTime tarih = DateTime.Parse(tumDuyularinListesi[i].InnerText);
+                    string icerik = tumDuyularinListesi[i + 1].InnerHtml; 
+                    sitedenOkunanTumDuyurular.Add(new Duyuru() { Tarih = tarih, Icerik = icerik });
                 }
-                 
+
+                if(sitedenOkunanTumDuyurular.Count()==0)
+                {
+                    new MailInstance().Gonder("Hiç bir duyuru bulunamadı ");
+                    Console.Read();
+                }
+                else
+                {
+                    sitedenOkunanTumDuyurular = sitedenOkunanTumDuyurular.OrderByDescending(x => x.Tarih).ToList();
+                    DateTime kaydedilenSonDuyuruTarihi = DateTime.Parse(File.ReadAllText("sonDuyuruTarihi.txt"));
+                    DateTime sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
+                    if (kaydedilenSonDuyuruTarihi != sitedenOkunanSonDuyuruTarihi)
+                    {
+                        //yeni duyuru tarihini .txt dosyasına kaydediyorum. 
+                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
+
+                        //daha sonra yeni bir duyuru geldiği için mail atıyorum.
+                        MailInstance mailInstance = new MailInstance();
+                        mailInstance.Gonder(sitedenOkunanTumDuyurular.FirstOrDefault());
+                        Console.Read();
+                    }
+                }
+              
+
             } 
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            { 
+            {
+                new MailInstance().Gonder("Sayfa bulunamadı.\r\n"+ex.Message+"\r\n"+ex.StackTrace);
+                Console.Read();
             }
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.InternalServerError)
-            { 
+            {
+                new MailInstance().Gonder("Sunucuya Erişilemiyor.\r\n" + ex.Message + "\r\n" + ex.StackTrace);
+                Console.Read();
             }
-            finally
-            { 
+            catch (Exception ex)
+            {
+                new MailInstance().Gonder(ex.Message + "\r\n" + ex.StackTrace);
+                Console.Read();
             }
-
+             
         }
     }
 }

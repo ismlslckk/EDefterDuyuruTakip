@@ -8,7 +8,7 @@ namespace EDefterDuyuruTakip.Modeller
 {
     public class Duyuru
     {
-        public string Tarih { get; set; }
+        public DateTime Tarih { get; set; }
         public string Icerik { get; set; } 
     }
 }
