@@ -7,3 +7,12 @@ C:\Users\ismls\source\repos\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDef
 C:\Users\ismls\source\repos\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.pdb
 C:\Users\ismls\source\repos\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\HtmlAgilityPack.dll
 C:\Users\ismls\source\repos\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CopyComplete
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.exe.config
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.exe
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.pdb
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\HtmlAgilityPack.dll
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csprojAssemblyReference.cache
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CoreCompileInputs.cache
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CopyComplete
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.exe
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.pdb

@@ -14,15 +14,15 @@ namespace EDefterDuyuruTakip
     {
         MailMessage ePosta = new MailMessage();
         SmtpClient smtp = new SmtpClient();
-        public MailInstance()
+        public MailInstance(string kimden,string kime,string kadi,string sifre,string host,int port,bool ssl)
         {
-            ePosta.From = new MailAddress("edefterduyurutakip@gmail.com");
-            ePosta.To.Add("sirketdestek@adayazilim.com");
+            ePosta.From = new MailAddress(kimden);
+            ePosta.To.Add(kime);
             ePosta.Subject = "E-DEFTER DUYURULARI HAKKINDA";
-            smtp.Credentials = new System.Net.NetworkCredential("", "");
-            smtp.Port = 587;
-            smtp.Host = "smtp.gmail.com";
-            smtp.EnableSsl = true; 
+            smtp.Credentials = new System.Net.NetworkCredential(kadi, sifre);
+            smtp.Port = port;
+            smtp.Host = host;
+            smtp.EnableSsl = ssl; 
         }
 
         public void Gonder(Duyuru duyuru)

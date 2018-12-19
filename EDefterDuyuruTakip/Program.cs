@@ -14,6 +14,15 @@ namespace EDefterDuyuruTakip
     {
         static void Main(string[] args)
         {
+            string[] parametreler = args[0].Split(',');
+            
+            string kimden = parametreler[0].Split(':')[1];
+            string kime = parametreler[1].Split(':')[1];
+            string kadi = parametreler[2].Split(':')[1];
+            string sifre = parametreler[3].Split(':')[1];
+            string host = parametreler[4].Split(':')[1];
+            int port = Convert.ToInt32(parametreler[5].Split(':')[1]);
+            bool ssl = Convert.ToBoolean(parametreler[6].Split(':')[1]); 
             List<Duyuru> sitedenOkunanTumDuyurular = new List<Duyuru>();
             try
             {
@@ -40,7 +49,7 @@ namespace EDefterDuyuruTakip
 
                 if(sitedenOkunanTumDuyurular.Count()==0)
                 {
-                    new MailInstance().Gonder("Hiç bir duyuru bulunamadı ");
+                    new MailInstance(kimden,kime,kadi,sifre,host,port,ssl).Gonder("Hiç bir duyuru bulunamadı ");
                     Console.Read();
                 }
                 else
@@ -54,7 +63,7 @@ namespace EDefterDuyuruTakip
                         File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
 
                         //daha sonra yeni bir duyuru geldiği için mail atıyorum.
-                        MailInstance mailInstance = new MailInstance();
+                        MailInstance mailInstance = new MailInstance(kimden, kime, kadi, sifre, host, port, ssl);
                         mailInstance.Gonder(sitedenOkunanTumDuyurular.FirstOrDefault());
                         Console.Read();
                     }
@@ -65,19 +74,19 @@ namespace EDefterDuyuruTakip
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 olusanHatalariKaydet(ex);
-                new MailInstance().Gonder("Sayfa bulunamadı.\r\n"+ex.Message+"\r\n"+ex.StackTrace);
+                new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder("Sayfa bulunamadı.\r\n"+ex.Message+"\r\n"+ex.StackTrace);
                 Console.Read();
             }
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.InternalServerError)
             {
                 olusanHatalariKaydet(ex);
-                new MailInstance().Gonder("Sunucuya Erişilemiyor.\r\n" + ex.Message + "\r\n" + ex.StackTrace);
+                new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder("Sunucuya Erişilemiyor.\r\n" + ex.Message + "\r\n" + ex.StackTrace);
                 Console.Read();
             }
             catch (Exception ex)
             {
                 olusanHatalariKaydet(ex);
-                new MailInstance().Gonder(ex.Message + "\r\n" + ex.StackTrace);
+                new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder(ex.Message + "\r\n" + ex.StackTrace);
                 Console.Read();
             }
             void olusanHatalariKaydet(Exception ex)
