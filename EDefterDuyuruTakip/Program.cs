@@ -27,27 +27,36 @@ namespace EDefterDuyuruTakip
             try
             {
                 Uri url = new Uri("http://www.edefter.gov.tr/duyurular.html");
+                logYaz("satir 30\n");
                 WebClient client = new WebClient();
                 client.Encoding = System.Text.Encoding.UTF8;
                 string html = client.DownloadString(url);
-                 
+                logYaz("satir 34\n");
+
                 HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                logYaz("satir 36\n");
                 document.LoadHtml(html);
-
+                logYaz("satir 39\n");
                 HtmlNodeCollection rtMainBody = document.DocumentNode.SelectNodes("//*[@id=\"rt-mainbody\"]");
-
+                logYaz("satir 41\n");
                 HtmlNode rtMainbodyDivininIcindekiDiv = rtMainBody.FirstOrDefault();
+                logYaz("satir 42\n");
                 HtmlNodeCollection rtMainbodyDivininIcindekiDivinIcindekiHtmlNodelari = rtMainbodyDivininIcindekiDiv.ChildNodes;
+                logYaz("satir 45\n");
                 HtmlNodeCollection tumDuyurular = rtMainbodyDivininIcindekiDivinIcindekiHtmlNodelari.FirstOrDefault(x => x.Name == "div").ChildNodes;
+                logYaz("satir 47\n");
                 List<HtmlNode> tumDuyularinListesi = tumDuyurular.Where(x => x.Name == "a" || x.Name == "p").ToList();
+                logYaz("duyuru adet : "+ tumDuyularinListesi.Count+ "\n");
                 for (int i = 0; i < tumDuyularinListesi.Count(); i=i+2)
                 {
-                    string tarih = tumDuyularinListesi[i].InnerText;
+                     
+                    DateTime tarih = DateTime.Parse(tumDuyularinListesi[i].InnerText.Replace(".","/"));
                     string icerik = tumDuyularinListesi[i + 1].InnerHtml; 
                     sitedenOkunanTumDuyurular.Add(new Duyuru() { Tarih = tarih, Icerik = icerik });
                 }
 
-                if(sitedenOkunanTumDuyurular.Count()==0)
+                logYaz("duyuyular okundu\n");
+                if (sitedenOkunanTumDuyurular.Count()==0)
                 {
                     new MailInstance(kimden,kime,kadi,sifre,host,port,ssl).Gonder("Hiç bir duyuru bulunamadı ");
                     Console.Read();
@@ -55,12 +64,12 @@ namespace EDefterDuyuruTakip
                 else
                 {
                     sitedenOkunanTumDuyurular = sitedenOkunanTumDuyurular.OrderByDescending(x => x.Tarih).ToList();
-                    string kaydedilenSonDuyuruTarihi = File.ReadAllText("sonDuyuruTarihi.txt");
-                    string sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
+                    DateTime kaydedilenSonDuyuruTarihi = DateTime.Parse(File.ReadAllText("sonDuyuruTarihi.txt").Replace(".","/"));
+                    DateTime sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
                     if (kaydedilenSonDuyuruTarihi != sitedenOkunanSonDuyuruTarihi)
                     {
                         //yeni duyuru tarihini .txt dosyasına kaydediyorum. 
-                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi);
+                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
 
                         //daha sonra yeni bir duyuru geldiği için mail atıyorum.
                         MailInstance mailInstance = new MailInstance(kimden, kime, kadi, sifre, host, port, ssl);
@@ -94,6 +103,13 @@ namespace EDefterDuyuruTakip
                 string olusanTumHatalar = File.ReadAllText("olusanHatalar.txt");
                 olusanTumHatalar += "\r\n #" + ex.Message + "\n" + ex.StackTrace;
                 File.WriteAllText("olusanHatalar.txt", olusanTumHatalar+"\n");
+            }
+
+            void logYaz(string ex)
+            {
+                string olusanTumHatalar = File.ReadAllText("log.txt");
+                olusanTumHatalar += "\r\n #" + ex + "\n";
+                File.WriteAllText("log.txt", olusanTumHatalar + "\n");
             }
         }
       

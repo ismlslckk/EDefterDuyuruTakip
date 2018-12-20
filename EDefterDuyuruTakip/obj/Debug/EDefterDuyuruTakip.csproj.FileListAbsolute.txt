@@ -15,3 +15,4 @@ C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.cspro
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CopyComplete
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.exe
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.pdb
+C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csprojAssemblyReference.cache

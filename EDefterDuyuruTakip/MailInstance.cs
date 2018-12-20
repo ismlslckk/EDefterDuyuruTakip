@@ -27,7 +27,7 @@ namespace EDefterDuyuruTakip
 
         public void Gonder(Duyuru duyuru)
         {  
-            ePosta.Body = duyuru.Tarih + "\r\n" + duyuru.Icerik; 
+            ePosta.Body = duyuru.Tarih.ToShortDateString() + "\r\n" + duyuru.Icerik; 
             object userState = ePosta; 
             try
             {
