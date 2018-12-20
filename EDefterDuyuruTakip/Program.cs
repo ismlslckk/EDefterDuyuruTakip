@@ -42,7 +42,7 @@ namespace EDefterDuyuruTakip
                 List<HtmlNode> tumDuyularinListesi = tumDuyurular.Where(x => x.Name == "a" || x.Name == "p").ToList();
                 for (int i = 0; i < tumDuyularinListesi.Count(); i=i+2)
                 {
-                    DateTime tarih = DateTime.Parse(tumDuyularinListesi[i].InnerText);
+                    string tarih = tumDuyularinListesi[i].InnerText;
                     string icerik = tumDuyularinListesi[i + 1].InnerHtml; 
                     sitedenOkunanTumDuyurular.Add(new Duyuru() { Tarih = tarih, Icerik = icerik });
                 }
@@ -55,12 +55,12 @@ namespace EDefterDuyuruTakip
                 else
                 {
                     sitedenOkunanTumDuyurular = sitedenOkunanTumDuyurular.OrderByDescending(x => x.Tarih).ToList();
-                    DateTime kaydedilenSonDuyuruTarihi = DateTime.Parse(File.ReadAllText("sonDuyuruTarihi.txt"));
-                    DateTime sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
+                    string kaydedilenSonDuyuruTarihi = File.ReadAllText("sonDuyuruTarihi.txt");
+                    string sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
                     if (kaydedilenSonDuyuruTarihi != sitedenOkunanSonDuyuruTarihi)
                     {
                         //yeni duyuru tarihini .txt dosyasına kaydediyorum. 
-                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
+                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi);
 
                         //daha sonra yeni bir duyuru geldiği için mail atıyorum.
                         MailInstance mailInstance = new MailInstance(kimden, kime, kadi, sifre, host, port, ssl);
