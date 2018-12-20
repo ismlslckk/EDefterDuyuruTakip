@@ -11,7 +11,6 @@ C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.exe.c
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.exe
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\EDefterDuyuruTakip.pdb
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\bin\Debug\HtmlAgilityPack.dll
-C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csprojAssemblyReference.cache
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CoreCompileInputs.cache
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.csproj.CopyComplete
 C:\Code\EDefterDuyuruTakip\EDefterDuyuruTakip\obj\Debug\EDefterDuyuruTakip.exe
