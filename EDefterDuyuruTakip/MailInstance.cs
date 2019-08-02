@@ -13,8 +13,9 @@ namespace EDefterDuyuruTakip
     public class MailInstance
     {
         MailMessage ePosta = new MailMessage();
+        List<Duyuru> duyurular = new List<Duyuru>();
         SmtpClient smtp = new SmtpClient();
-        public MailInstance(string kimden,string kime,string kadi,string sifre,string host,int port,bool ssl)
+        public MailInstance(string kimden, string kime, string kadi, string sifre, string host, int port, bool ssl)
         {
             ePosta.From = new MailAddress(kimden);
             ePosta.To.Add(kime);
@@ -22,13 +23,21 @@ namespace EDefterDuyuruTakip
             smtp.Credentials = new System.Net.NetworkCredential(kadi, sifre);
             smtp.Port = port;
             smtp.Host = host;
-            smtp.EnableSsl = ssl; 
+            smtp.EnableSsl = ssl;
+        }
+
+        public void DuyurulariIsle(List<Duyuru> duyurular)
+        {
+            this.duyurular = duyurular;
+            Duyuru duyuru = duyurular.First();
+            duyuru.Gonderildi = true;
+            Gonder(duyuru);
         }
 
         public void Gonder(Duyuru duyuru)
-        {  
-            ePosta.Body = duyuru.Tarih.ToShortDateString() + "\r\n" + duyuru.Icerik; 
-            object userState = ePosta; 
+        {
+            ePosta.Body = duyuru.Tarih.ToShortDateString() + "\r\n" + duyuru.Icerik;
+            object userState = ePosta;
             try
             {
                 smtp.SendAsync(ePosta, (object)ePosta);
@@ -38,7 +47,7 @@ namespace EDefterDuyuruTakip
             {
                 olusanHatalariKaydet(ex);
             }
-             
+
         }
 
         public void Gonder(string mesaj)
@@ -55,18 +64,35 @@ namespace EDefterDuyuruTakip
                 olusanHatalariKaydet(ex);
             }
         }
-         
+
         public void olusanHatalariKaydet(Exception ex)
         {
-            string olusanTumHatalar = File.ReadAllText("olusanHatalar.txt");
-            olusanTumHatalar += "\n #" + ex.Message + "\n" + ex.StackTrace;
-            File.WriteAllText("olusanHatalar.txt", olusanTumHatalar);
+            File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\olusanHatalar.txt", "\n" + DateTime.Now + " #" + ex.Message + "\n" + ex.StackTrace);
         }
+
         private void mailGondermeBasarili_Event(object sender, AsyncCompletedEventArgs args)
         {
-            System.Environment.Exit(-1);
+            if (args.Error != null && args.Error.ToString() != "")
+            {
+                string icerik = "\r\n" + DateTime.Now + " #mail gönderimi başarısız:" + args.Error.ToString() + "\n";
+                File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\log.txt", icerik);
+                File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\olusanHatalar.txt", icerik);
+            }
+            else
+                File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\log.txt", "\r\n" + DateTime.Now + " #mail gönderimi başarılı:" + args.Cancelled + "|" + args.Error + "\n");
+
+            if (this.duyurular.Count(x => x.Gonderildi == false) > 0)
+            {
+                Duyuru duyuru = this.duyurular.First(x => x.Gonderildi == false);
+                duyuru.Gonderildi = true;
+                Gonder(duyuru);
+            }
+            else
+            {
+                System.Environment.Exit(-1);
+            }
         }
     }
-    
+
 }
 

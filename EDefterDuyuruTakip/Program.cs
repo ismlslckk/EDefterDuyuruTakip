@@ -14,15 +14,33 @@ namespace EDefterDuyuruTakip
     {
         static void Main(string[] args)
         {
-            string[] parametreler = args[0].Split(',');
+            string kimden, kime, kadi, sifre, host = "";
+            int port=0;
+            bool ssl = false;
+
+            if (args.Length > 0)
+            {
+                string[] parametreler = args[0].Split(',');
+
+                kimden = parametreler[0].Split(':')[1];
+                kime = parametreler[1].Split(':')[1];
+                kadi = parametreler[2].Split(':')[1];
+                sifre = parametreler[3].Split(':')[1];
+                host = parametreler[4].Split(':')[1];
+                port = Convert.ToInt32(parametreler[5].Split(':')[1]);
+                ssl = Convert.ToBoolean(parametreler[6].Split(':')[1]);
+            }
+            else
+            {
+                kimden = "edefterduyurutakip@gmail.com";
+                kime = "sirketdestek@adayazilim.com";
+                kadi = "edefterduyurutakip@gmail.com";
+                sifre = "edefterduyurutakip.2018";
+                host = "smtp.gmail.com";
+                port = 587;
+                ssl = true;
+            }
             
-            string kimden = parametreler[0].Split(':')[1];
-            string kime = parametreler[1].Split(':')[1];
-            string kadi = parametreler[2].Split(':')[1];
-            string sifre = parametreler[3].Split(':')[1];
-            string host = parametreler[4].Split(':')[1];
-            int port = Convert.ToInt32(parametreler[5].Split(':')[1]);
-            bool ssl = Convert.ToBoolean(parametreler[6].Split(':')[1]); 
             List<Duyuru> sitedenOkunanTumDuyurular = new List<Duyuru>();
             try
             {
@@ -46,44 +64,47 @@ namespace EDefterDuyuruTakip
                 HtmlNodeCollection tumDuyurular = rtMainbodyDivininIcindekiDivinIcindekiHtmlNodelari.FirstOrDefault(x => x.Name == "div").ChildNodes;
                 logYaz("satir 47\n");
                 List<HtmlNode> tumDuyularinListesi = tumDuyurular.Where(x => x.Name == "a" || x.Name == "p").ToList();
-                logYaz("duyuru adet : "+ tumDuyularinListesi.Count+ "\n");
-                for (int i = 0; i < tumDuyularinListesi.Count(); i=i+2)
+                logYaz("duyuru adet : " + tumDuyularinListesi.Count + "\n");
+                for (int i = 0; i < tumDuyularinListesi.Count(); i = i + 2)
                 {
-                     
-                    DateTime tarih = DateTime.Parse(tumDuyularinListesi[i].InnerText.Replace(".","/"));
-                    string icerik = tumDuyularinListesi[i + 1].InnerHtml; 
+
+                    DateTime tarih = DateTime.Parse(tumDuyularinListesi[i].InnerText.Replace(".", "/"));
+                    string icerik = tumDuyularinListesi[i + 1].InnerHtml;
                     sitedenOkunanTumDuyurular.Add(new Duyuru() { Tarih = tarih, Icerik = icerik });
                 }
 
-                logYaz("duyuyular okundu\n");
-                if (sitedenOkunanTumDuyurular.Count()==0)
+                logYaz("duyurular okundu\n");
+                if (sitedenOkunanTumDuyurular.Count() == 0)
                 {
-                    new MailInstance(kimden,kime,kadi,sifre,host,port,ssl).Gonder("Hiç bir duyuru bulunamadı ");
+                    new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder("Hiç bir duyuru bulunamadı ");
                     Console.Read();
                 }
                 else
                 {
                     sitedenOkunanTumDuyurular = sitedenOkunanTumDuyurular.OrderByDescending(x => x.Tarih).ToList();
-                    DateTime kaydedilenSonDuyuruTarihi = DateTime.Parse(File.ReadAllText("sonDuyuruTarihi.txt").Replace(".","/"));
+                    DateTime kaydedilenSonDuyuruTarihi = DateTime.Parse(File.ReadAllText(@"C:\AdaYazilim\ScheduledTask\sonDuyuruTarihi.txt").Replace(".", "/"));
                     DateTime sitedenOkunanSonDuyuruTarihi = sitedenOkunanTumDuyurular.FirstOrDefault().Tarih;
                     if (kaydedilenSonDuyuruTarihi != sitedenOkunanSonDuyuruTarihi)
                     {
                         //yeni duyuru tarihini .txt dosyasına kaydediyorum. 
-                        File.WriteAllText("sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
+                        File.WriteAllText(@"C:\AdaYazilim\ScheduledTask\sonDuyuruTarihi.txt", sitedenOkunanSonDuyuruTarihi.ToShortDateString());
 
                         //daha sonra yeni bir duyuru geldiği için mail atıyorum.
                         MailInstance mailInstance = new MailInstance(kimden, kime, kadi, sifre, host, port, ssl);
-                        mailInstance.Gonder(sitedenOkunanTumDuyurular.FirstOrDefault());
+                        sitedenOkunanTumDuyurular = sitedenOkunanTumDuyurular.Where(x => x.Tarih > kaydedilenSonDuyuruTarihi).ToList();
+                        mailInstance.DuyurulariIsle(sitedenOkunanTumDuyurular);
+
+                        logYaz("mailler gönderildi\n");
                         Console.Read();
                     }
                 }
-              
 
-            } 
+
+            }
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 olusanHatalariKaydet(ex);
-                new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder("Sayfa bulunamadı.\r\n"+ex.Message+"\r\n"+ex.StackTrace);
+                new MailInstance(kimden, kime, kadi, sifre, host, port, ssl).Gonder("Sayfa bulunamadı.\r\n" + ex.Message + "\r\n" + ex.StackTrace);
                 Console.Read();
             }
             catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.InternalServerError)
@@ -100,18 +121,14 @@ namespace EDefterDuyuruTakip
             }
             void olusanHatalariKaydet(Exception ex)
             {
-                string olusanTumHatalar = File.ReadAllText("olusanHatalar.txt");
-                olusanTumHatalar += "\r\n #" + ex.Message + "\n" + ex.StackTrace;
-                File.WriteAllText("olusanHatalar.txt", olusanTumHatalar+"\n");
+                File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\olusanHatalar.txt", "\r\n" + DateTime.Now + " #" + ex.Message + "\n" + ex.StackTrace);
             }
 
             void logYaz(string ex)
             {
-                string olusanTumHatalar = File.ReadAllText("log.txt");
-                olusanTumHatalar += "\r\n #" + ex + "\n";
-                File.WriteAllText("log.txt", olusanTumHatalar + "\n");
+                File.AppendAllText(@"C:\AdaYazilim\ScheduledTask\log.txt", "\r\n" + DateTime.Now + " #" + ex + "\n");
             }
         }
-      
+
     }
 }
